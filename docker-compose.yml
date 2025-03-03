@@ -1,0 +1,93 @@
+volumes:
+  minio:
+  pgdata:
+services:
+  content_store:
+    image: postgres:13
+    restart: always
+    ports:
+      - "5433:5433"
+    env_file:
+      - 'environment_variables.env'
+      # POSTGRES_PASSWORD
+      # POSTGRES_USER
+      # POSTGRES_DB
+    volumes:
+      - "pgdata:/var/lib/postgresql/data"
+    command: -p 5433
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER -p 5433" ]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+  conductor:
+    build:
+      context: .
+      dockerfile: ./services/conductor/Dockerfile
+    platform: linux/amd64
+    ports:
+      - "3101:3101"
+    volumes:
+      - ".:/usr/src/app"
+    env_file:
+      - 'environment_variables.env'
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl --fail http://conductor:3101/healthcheck"
+        ]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+    depends_on:
+      content_store:
+        condition: service_healthy
+  trend_viewer:
+    build:
+      context: .
+      dockerfile: ./services/trend_viewer/Dockerfile
+    platform: linux/amd64
+    ports:
+      - "8501:8501"
+    volumes:
+      - ".:/usr/src/app"
+    env_file:
+      - 'environment_variables.env'
+    depends_on:
+      conductor:
+        condition: service_healthy
+      content_store:
+        condition: service_healthy
+  booker:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: ./services/booker/Dockerfile
+    volumes:
+      # mount aws credentials into container from hosting laptop
+      - ~/.aws:/root/.aws
+      # mount local code into container to edit without rebuilding
+      - ".:/usr/src/app"
+    env_file:
+      - 'environment_variables.env'
+      # env variables needed
+      # AWS_REGION
+      # TIMPANI_AWS_PROFILE_NAME
+      # DEPLOY_ENV
+      # APP_ENV
+      # MINIO_ROOT_USER
+      # MINIO_ROOT_PASSWORD
+  minio:
+    image: minio/minio:latest
+    ports:
+      - "9002:9000"
+      - "9090:9090"
+    volumes:
+      - "minio:/data"
+    command: minio server /data --address :9002 --console-address ":9090"
+    env_file:
+      - 'environment_variables.env'
+      # env variables needed
+      # MINIO_ROOT_USER
+      # MINIO_ROOT_PASSWORD

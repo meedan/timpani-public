@@ -1,0 +1,15 @@
+alembic==1.13.1
+marshmallow==3.21.1
+marshmallow_sqlalchemy==1.0.0
+opentelemetry-api==1.24.0
+opentelemetry-exporter-otlp-proto-http==1.24.0
+opentelemetry-sdk==1.24.0
+psycopg2-binary==2.9.9
+python-json-logger==2.0.7
+requests==2.32.2
+sqlalchemy==2.0.29
+sentry_sdk==2.8.0
+streamlit==1.37.0
+# ci requirements
+faker
+minio

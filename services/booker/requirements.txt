@@ -1,0 +1,10 @@
+boto3==1.34.37
+opentelemetry-api==1.24.0
+opentelemetry-exporter-otlp-proto-http==1.24.0
+opentelemetry-sdk==1.24.0
+python-json-logger==2.0.7
+requests==2.32.2
+sentry_sdk==2.8.0
+# ci requirements
+faker==23.1.0
+minio==7.2.3

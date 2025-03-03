@@ -1,0 +1,7 @@
+.DS_Store
+.vscode/
+__pycache__
+.pyc
+timpani.code-workspace
+logging_test.log
+timpani.egg-info/

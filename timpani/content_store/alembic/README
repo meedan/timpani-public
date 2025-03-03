@@ -1,0 +1,22 @@
+Alembic is used in conjunction with SQLAlchemy to manage state of database migrations for the content_store database
+https://alembic.sqlalchemy.org/en/latest/tutorial.html
+
+Migrations are usually managed via the `content_store/content_store_manager.py` script
+
+In normal usage scripts are called by the the 'conductor' container to do inititial setup (database and user creation) and automatically apply migrations. 
+
+Most tests will need to destroy and setup the database before running. 
+
+- `docker compose run conductor content_store setup` will initialize the database and setup appropriate users (run automatically if needed on container initialization) and try to run migrations
+- `docker compose run conductor content_store migrate` will apply the most recent migration
+- `docker compose run conductor content_store destroy` will DELETE ALL DATA and tear down the database 
+
+From inside the docker container, these can be run as:
+- `python3 -m timpani.content_store.content_store_manager setup`
+
+ New migration templates can be created norml alembic commands from inside the conductor container:
+`docker compose exec conductor bash`
+`python3 -m alembic -c timpani/content_store/alembic.ini revision --autogenerate  -m 'create initial table definitions'`
+
+
+This is a Generic single-database configuration.
